@@ -1,0 +1,152 @@
+{
+    "usersList": [
+        {
+            "name": "Shachin Kumar",
+            "uid": "sachin_1402",
+            "last_time": "02:05 am",
+            "messages": [
+                {
+                    "isUserMessage": true,
+                    "message": "Hey this is test user",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Hey this is sachin",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "I'm Currently Implementing chat window",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Thats great",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Do ping me if you need any help",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "sure, thankyou!",
+                    "time": "11:57 AM"
+                }
+            ]
+        },
+        {
+            "name": "Shiva",
+            "uid": "shiva_123",
+            "last_time": "01:45 am",
+            "messages": [
+                {
+                    "isUserMessage": true,
+                    "message": "Hey this is test user",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Hey this is shiva",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "I'm Currently Implementing chat window",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Thats great",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Do ping me if you need any help",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "sure, thankyou!",
+                    "time": "11:57 AM"
+                }
+            ]
+        },
+        {
+            "name": "uesr 3",
+            "uid": "user_3",
+            "last_time": "01:08 am",
+            "messages": [
+                {
+                    "isUserMessage": true,
+                    "message": "Hey this is test user",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Hey this is shiva",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "I'm Currently Implementing chat window",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Thats great",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Do ping me if you need any help",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "sure, thankyou!",
+                    "time": "11:57 AM"
+                }
+            ]
+        },
+        {
+            "name": "user 4",
+            "uid": "user_4",
+            "last_time": "12:50 am",
+            "messages": [
+                {
+                    "isUserMessage": true,
+                    "message": "Hey this is test user",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Hey this is shiva",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "I'm Currently Implementing chat window",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Thats great",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": false,
+                    "message": "Do ping me if you need any help",
+                    "time": "11:57 AM"
+                },
+                {
+                    "isUserMessage": true,
+                    "message": "sure, thankyou!",
+                    "time": "11:57 AM"
+                }
+            ]
+        }
+    ]
+}

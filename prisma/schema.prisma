@@ -1,0 +1,230 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Reason {
+  REGISTER
+  FORGOT_PASSWORD
+}
+
+model User {
+  id          String        @id @default(cuid())
+  username    String        @unique
+  displayName String?
+  image       String?
+  cover       String?
+  email       String?       @unique
+  phone       String?       @unique
+  password    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  bio         String?
+  dateOfBirth DateTime
+  social      Json          @default("{}")
+  active      Boolean       @default(true)
+  isMentor    Boolean       @default(false)
+  intrests    Json          @default("{}")
+  Mentor      Mentor[]
+  Draft       Draft[]
+  Cart        Cart[]
+  Payment     Payment[]
+  Order       Order[]
+  posts       Post[]
+  PostLike    PostLike[]
+  PostComment PostComment[]
+
+  @@unique([email, phone])
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  otp       String
+  source    String
+  reason    Reason
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Mentor {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id])
+  schoolName          String
+  schoolMotive        String
+  schoolNiche         String
+  schoolDescription   String
+  mentorLanguage      String
+  mentorIdentity      String
+  mentorIsTeacher     String
+  mentorExperience    String
+  mentorHaveDocuments String
+  addressLine1        String
+  addressLine2        String
+  city                String
+  state               String
+  postalCode          String
+  mentorPanCard       String
+  mentorVideo         String
+  Course              Courses[]
+}
+
+model Courses {
+  id                     String    @id @default(cuid())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  title                  String
+  subTitle               String
+  description            String
+  courseLanguage         String
+  courseLevel            String
+  courseCategory         String
+  courseIntroFile        String
+  courseThumbnail        String
+  learningObjectives     Json
+  coursePrerequisites    Json
+  courseFor              Json
+  welcomeMessage         String
+  congratulationsMessage String
+  price                  Int
+  mentorId               String
+  batchWeekOff           Json
+  classDuration          Int
+  applicationCloseDate   DateTime
+  classStartDate         DateTime
+  mentor                 Mentor    @relation(fields: [mentorId], references: [id])
+  batches                Batches[]
+  Post                   Post[]
+  Cart                   Cart[]
+  Order                  Order[]
+  Payment                Payment[]
+}
+
+model Batches {
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  timeSlot         String
+  numberOfStudents Int
+  Course           Courses   @relation(fields: [courseId], references: [id])
+  courseId         String
+  modules          Modules[]
+  Cart             Cart[]
+  Order            Order[]
+  Payment          Payment[]
+}
+
+model Modules {
+  id        String     @id @default(cuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  title     String
+  batchId   String
+  batches   Batches    @relation(fields: [batchId], references: [id])
+  lectures  Lectures[]
+}
+
+model Lectures {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  title       String
+  moduleId    String
+  module      Modules  @relation(fields: [moduleId], references: [id])
+  lectureDate DateTime
+  isFinished  Boolean  @default(false)
+}
+
+model Post {
+  id        String        @id @default(cuid())
+  courseId  String?
+  authorId  String
+  image     String
+  content   String
+  author    User          @relation(fields: [authorId], references: [id])
+  course    Courses?      @relation(fields: [courseId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  likes     PostLike[]
+  comments  PostComment[]
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+}
+
+model Draft {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   Json
+  userId    String
+  progress  Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Cart {
+  id       String  @id @default(cuid())
+  userId   String
+  courseId String
+  batchId  String
+  user     User    @relation(fields: [userId], references: [id])
+  course   Courses @relation(fields: [courseId], references: [id])
+  batch    Batches @relation(fields: [batchId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  amount    Int
+  status    String
+  userId    String
+  courseId  String
+  batchId   String
+  user      User     @relation(fields: [userId], references: [id])
+  course    Courses  @relation(fields: [courseId], references: [id])
+  batch     Batches  @relation(fields: [batchId], references: [id])
+  Order     Order[]
+
+  @@unique([userId, courseId])
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  courseId  String
+  paymentId String
+  batchId   String
+  payment   Payment  @relation(fields: [paymentId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  course    Courses  @relation(fields: [courseId], references: [id])
+  batch     Batches  @relation(fields: [batchId], references: [id])
+
+  @@unique([userId, courseId])
+}
