@@ -6,4 +6,33 @@
 body {
   font-family: 'Poppins', sans-serif;
   -webkit-overflow-scrolling: touch;
+
+  --color-primary: #3949ab;
+  --primary-light: #d9d9ff;
+}
+
+select {
+  appearance: none;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  width: 200px;
+}
+
+select::after {
+  content: '\25BC';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-light);
+  border-color: var(--color-primary);
 }

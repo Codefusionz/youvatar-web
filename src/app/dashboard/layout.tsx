@@ -1,7 +1,6 @@
 'use client'
 
-import { useSupabase } from '@/app/supabase-provider'
-import Spinner from '@/components/Spinner'
+import { useSupabase } from '@/app/providers/supabase-provider'
 import {
   ArrowTopRightOnSquareIcon,
   HomeIcon as HomeIconOutline,
@@ -15,41 +14,21 @@ import {
   MagnifyingGlassIcon as MagnifyingGlassIconSolid,
   PaperAirplaneIcon as PaperAirplaceIconSolid,
 } from '@heroicons/react/24/solid'
-import { User } from '@supabase/auth-helpers-nextjs'
 import clsx from 'clsx'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const [user, setUser] = useState<User>()
-  const [loading, setLoading] = useState(true)
   const { supabase } = useSupabase()
-  const router = useRouter()
+  const user = useSelector((state: any) => state.user.data)
 
   const pathname = usePathname()
-
-  const getUser = async () => {
-    const { data } = await supabase.auth.getSession()
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select()
-      .eq('id', data.session?.user?.id)
-      .single()
-
-    if (!profile) router.replace('/onboard')
-
-    setUser(data.session?.user)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    getUser()
-  }, [])
+  const router = useRouter()
 
   const NavLink = (props: {
     path: string
@@ -74,14 +53,6 @@ export default async function RootLayout({
         )}
         <span className="">{props.name}</span>
       </Link>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center">
-        <Spinner style={{ width: 50, height: 50, color: '#3949ab' }} />
-      </div>
     )
   }
 
@@ -132,17 +103,19 @@ export default async function RootLayout({
               <span>Student Dashboard</span>
             </Link>
             <Link
-              href="/mentor/dashboard"
+              href={user?.isMentor ? '/mentor/dashboard' : '/mentor/onboard'}
               className={`flex flex-row gap-4 items-center cursor-pointer p-2 rounded-md`}
             >
               <ArrowTopRightOnSquareIcon className="h-7 w-7" />
-              <span>Mentor Dashboard</span>
+              <span>
+                {user?.isMentor ? 'Mentor Dashboard' : 'Become a mentor'}
+              </span>
             </Link>
             <button
               className="flex flex-row gap-4 items-center mt-4 cursor-pointer p-2 bg-primary text-center mx-auto w-full rounded-md"
               onClick={async () => {
                 await supabase.auth.signOut()
-                router.replace('/')
+                router.push('/')
               }}
             >
               <span className="text-center w-full text-white">Logout</span>

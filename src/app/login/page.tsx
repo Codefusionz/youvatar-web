@@ -1,6 +1,6 @@
 'use client'
 
-import { useSupabase } from '@/app/supabase-provider'
+import { useSupabase } from '@/app/providers/supabase-provider'
 import PrimaryButton from '@/components/Button/Primary'
 import SocialButton from '@/components/Button/Social'
 import TextInput from '@/components/TextInput'

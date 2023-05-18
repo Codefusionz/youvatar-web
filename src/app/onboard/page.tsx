@@ -1,15 +1,17 @@
 'use client'
 
-import { useSupabase } from '@/app/supabase-provider'
+import { useSupabase } from '@/app/providers/supabase-provider'
 import PrimaryButton from '@/components/Button/Primary'
 import SecondaryButton from '@/components/Button/Secondary'
 import Spinner from '@/components/Spinner'
 import TextInput from '@/components/TextInput'
+import { setUser } from '@/redux/slice/user'
 import { INTRESTS, SKILLS, SPORTS } from '@/utils/constants'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import toast, { ErrorIcon } from 'react-hot-toast'
+import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select'
 
 type Inputs = {
@@ -35,6 +37,8 @@ export default function Page() {
   const [selectedYear, setSelectedYear] = useState<OptionType | null>(null)
   const router = useRouter()
   const totalSteps = 3
+  const dispatch = useDispatch()
+  const user = useSelector((state: any) => state.user?.data)
 
   const handleDayChange = (selectedOption: any) => {
     setSelectedDay(selectedOption as OptionType)
@@ -119,26 +123,37 @@ export default function Page() {
 
     const { data: user } = await supabase.auth.getSession()
 
-    const { error } = await supabase.from('profiles').insert({
-      id: user.session?.user?.id,
-      username: event.username,
-      displayName: event.displayName,
-      dateOfBirth,
-      intrests: {
-        intrests: intrests,
-        skills: skills,
-        sports: sports,
-      },
-    })
-
-    if (error) {
-      toast('Unable to register at the moment', {
-        icon: <ErrorIcon />,
+    const { error, data } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.session?.user?.id,
+        username: event.username,
+        displayName: event.displayName,
+        dateOfBirth,
+        intrests: {
+          intrests: intrests,
+          skills: skills,
+          sports: sports,
+        },
       })
-    } else router.push('/dashboard/feed')
+      .select()
+
+    if (!error) {
+      dispatch(setUser(data[0]))
+      router.push('/dashboard/feed')
+      return
+    }
+
+    toast('Unable to register at the moment', {
+      icon: <ErrorIcon />,
+    })
 
     setLoading(false)
   }
+
+  useEffect(() => {
+    if (user) router.push('/dashboard/feed')
+  }, [user])
 
   return (
     <div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useSupabase } from '@/app/supabase-provider'
+import { useSupabase } from '@/app/providers/supabase-provider'
 import { useState } from 'react'
 
 export default function Page() {
