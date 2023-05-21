@@ -25,8 +25,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const { supabase } = useSupabase()
-  const user = useSelector((state: any) => state.user.data)
-
+  const user = useSelector((state: any) => state?.user?.data)
   const pathname = usePathname()
   const router = useRouter()
 
@@ -65,7 +64,7 @@ export default async function RootLayout({
           </div>
           <div className="flex flex-col gap-2 mt-7">
             <NavLink
-              path="/dashboard/feed"
+              path="/dashboard"
               name="Home"
               SolidIcon={HomeIconSolid}
               OutlineIcon={HomeIconOutline}

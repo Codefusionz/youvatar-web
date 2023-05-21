@@ -1,10 +1,10 @@
 'use client'
 
 import { useSupabase } from '@/app/providers/supabase-provider'
+import PrimaryButton from '@/components/Button/Primary'
 import Dropzone from '@/components/Dropzone'
 import Progressbar from '@/components/Progressbar'
 import Select from '@/components/Select'
-import Spinner from '@/components/Spinner'
 import TextInput from '@/components/TextInput'
 import {
   HAVE_MATERIAL_TO_TEACH_OPTIONS,
@@ -19,16 +19,21 @@ import { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 
+type SelectType = {
+  label: string
+  value: string
+}
+
 type Inputs = {
   name: string
   motive: string
-  niche: string
+  niche: SelectType
   description: string
-  language: string
-  identity: string
-  teaching: string
-  experience: string
-  documents: string
+  language: SelectType
+  identity: SelectType
+  teaching: SelectType
+  experience: SelectType
+  documents: SelectType
   addressLine1: string
   addressLine2: string
   city: string
@@ -42,8 +47,6 @@ function Mentor() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const [step, setStep] = useState(1)
-  const [pancard, setMentorPanCard] = useState<any | null>(null)
-  const [video, setMentorVideo] = useState<any | null>(null)
   const totalSteps = 4
   const user = useSelector((state: any) => state?.user?.data)
   const { supabase } = useSupabase()
@@ -51,6 +54,7 @@ function Mentor() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<Inputs>()
 
@@ -65,14 +69,22 @@ function Mentor() {
 
       const panCardUrl = await supabase.storage
         .from('youvatar')
-        .upload(`mentor/pancard-${user.id}.jpg`, pancard, { upsert: true })
+        .upload(`mentor/pancard-${user.id}.jpg`, event.pancard, {
+          upsert: true,
+        })
 
       const videoUrl = await supabase.storage
         .from('youvatar')
-        .upload(`mentor/video-${user.id}.mp4`, video, { upsert: true })
+        .upload(`mentor/video-${user.id}.mp4`, event.video, { upsert: true })
 
       const { error } = await supabase.from('mentor').insert({
         ...event,
+        niche: event.niche?.value,
+        language: event.language?.value,
+        identity: event.identity?.value,
+        teaching: event.teaching?.value,
+        experience: event.experience?.value,
+        documents: event.documents?.value,
         pancard: panCardUrl.data?.path,
         video: videoUrl.data?.path,
       })
@@ -84,27 +96,26 @@ function Mentor() {
     setLoading(false)
   }
 
-  const checkPreviousSubmission = async () => {
-    try {
-      // await axios.get('/api/mentor')
-      // router.push('/mentor/slots')
-    } catch (error) {
-      console.log(error)
+  const checkSubmittions = async () => {
+    const { data: mentor } = await supabase
+      .from('mentor')
+      .select()
+      .eq('id', user?.id)
+      .single()
+
+    if (mentor) {
+      if (mentor?.isVerified) router.push('/mentor/dashboard')
+      else router.push('/mentor/slots')
     }
   }
 
   useEffect(() => {
-    // if (user?.isMentor) router.push('/mentor/slots')
-    checkPreviousSubmission()
-  }, [user])
+    checkSubmittions()
+  }, [])
 
-  // if (!user) {
-  //   return (
-  //     <div className="w-screen h-screen flex items-center justify-center">
-  //       <Spinner style={{ height: 50, width: 50, color: '#3949ab' }} />
-  //     </div>
-  //   )
-  // }
+  useEffect(() => {
+    if (!user) router.replace('/dashboard')
+  }, [user])
 
   return (
     <div className="col-span-1 w-full p-4 md:max-w-lg md:mx-auto">
@@ -145,15 +156,10 @@ function Mentor() {
             <Select
               label="School Niche"
               error={errors.niche?.message?.toString()}
-              rest={{
-                ...register('niche', {
-                  required: {
-                    value: true,
-                    message: 'Niche is required',
-                  },
-                }),
-              }}
               options={NICHE_OPTIONS}
+              placeholder="Choose your niche"
+              name="niche"
+              control={control}
             />
             <TextInput
               label="School Description"
@@ -180,66 +186,41 @@ function Mentor() {
               label="In what language do you teach?"
               error={errors.language?.message?.toString()}
               options={LANGUAGE_OPTIONS}
-              rest={{
-                ...register('language', {
-                  required: {
-                    value: true,
-                    message: 'Language is required',
-                  },
-                }),
-              }}
+              placeholder="Choose your language"
+              control={control}
+              name="language"
             />
             <Select
               label="How do you identify yourself?"
               error={errors.identity?.message?.toString()}
               options={IDENTIFY_YOURSELF_OPTIONS}
-              rest={{
-                ...register('identity', {
-                  required: {
-                    value: true,
-                    message: 'Identity is required',
-                  },
-                }),
-              }}
+              control={control}
+              name="identity"
+              placeholder="Choose your identity"
             />
             <Select
               label="Are you already teaching online?"
               error={errors.teaching?.message?.toString()}
               options={ONLINE_TEACHER_OPTIONS}
-              rest={{
-                ...register('teaching', {
-                  required: {
-                    value: true,
-                    message: 'Field is required',
-                  },
-                }),
-              }}
+              control={control}
+              name="teaching"
+              placeholder="Choose your option"
             />
             <Select
               label="How many years of experience do you have in teaching?"
               error={errors.experience?.message?.toString()}
               options={YEARS_OF_EXPERIENCE_OPTIONS}
-              rest={{
-                ...register('experience', {
-                  required: {
-                    value: true,
-                    message: 'Experience is required',
-                  },
-                }),
-              }}
+              control={control}
+              name="experience"
+              placeholder="Choose your option"
             />
             <Select
               label="Do you have material or document to teach?"
               error={errors.documents?.message?.toString()}
               options={HAVE_MATERIAL_TO_TEACH_OPTIONS}
-              rest={{
-                ...register('documents', {
-                  required: {
-                    value: true,
-                    message: 'Field is required',
-                  },
-                }),
-              }}
+              control={control}
+              name="documents"
+              placeholder="Choose your option"
             />
           </div>
         )}
@@ -329,31 +310,15 @@ function Mentor() {
             <Dropzone
               label="Upload PAN Card"
               accept="image/png, image/jpeg"
-              onChange={setMentorPanCard}
-              dataValue={pancard}
-              rest={{
-                ...register('pancard', {
-                  required: {
-                    value: true,
-                    message: 'PanCard is required',
-                  },
-                }),
-              }}
+              control={control}
+              name="pancard"
               error={errors.pancard?.message?.toString()}
             />
             <Dropzone
               label="Upload Your Video"
-              accept="video/mp4, video/mpeg"
-              onChange={setMentorVideo}
-              dataValue={video}
-              rest={{
-                ...register('video', {
-                  required: {
-                    value: true,
-                    message: 'Video is required',
-                  },
-                }),
-              }}
+              accept="video/mp4, video/nkv"
+              control={control}
+              name="video"
               error={errors.video?.message?.toString()}
             />
           </div>
@@ -374,16 +339,12 @@ function Mentor() {
             >
               Back
             </button>
-            <button
+            <PrimaryButton
+              title="Next"
               type="submit"
-              disabled={loading}
+              loading={loading}
               className="w-full bg-primary text-white rounded-md mt-6 p-2 font-normal flex items-center justify-center"
-            >
-              {loading && (
-                <Spinner style={{ height: 19, width: 19, color: '#fff' }} />
-              )}
-              Next
-            </button>
+            />
           </div>
         </div>
       </form>

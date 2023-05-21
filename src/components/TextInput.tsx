@@ -16,11 +16,11 @@ export default function TextInput(props: TextInputProps) {
       </label>
       <input
         type={props.type}
-        className="bg-gray-50 outline-none border focus:border-primary border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+        className="bg-white outline-none border focus:border-primary border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
         placeholder={props.placeholder}
-        {...props.rest}
         required={props.required}
         disabled={props.disabled}
+        {...props.rest}
       />
       {props.error && (
         <label className="text-xs text-red-500">{props.error}</label>

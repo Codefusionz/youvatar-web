@@ -11,28 +11,17 @@ body {
   --primary-light: #d9d9ff;
 }
 
-select {
-  appearance: none;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #333;
-  width: 200px;
+*::-webkit-scrollbar {
+  width: 7px !important;
+  height: 7px !important;
 }
 
-select::after {
-  content: '\25BC';
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
-  pointer-events: none;
+*::-webkit-scrollbar-track {
+  background: white !important;
 }
 
-select:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--color-light);
-  border-color: var(--color-primary);
+*::-webkit-scrollbar-thumb {
+  background-color: #d3d5d8 !important;
+  border-radius: 1rem !important;
+  border: none !important;
 }

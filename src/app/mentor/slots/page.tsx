@@ -46,8 +46,6 @@ export default function Page() {
 
   useEffect(() => {
     const allDatesAndDays = getAllDatesAndDaysInMonth(selectedMonth.value)
-    console.log(allDatesAndDays)
-
     setDays(allDatesAndDays)
   }, [selectedMonth])
 
@@ -68,6 +66,7 @@ export default function Page() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm()
 
@@ -117,9 +116,9 @@ export default function Page() {
             label=""
             error={errors.month?.message?.toString()}
             options={MONTHS_OPTIONS}
-            rest={{
-              ...register('month'),
-            }}
+            control={control}
+            name="month"
+            placeholder="Select Month"
           />
         </div>
       </div>
@@ -174,7 +173,7 @@ export default function Page() {
             </span>
           </div>
           <Link
-            href={`/mentor/verification?timeslot=${selectedTimeSlots}&date=${
+            href={`/mentor/verify?timeslot=${selectedTimeSlots}&date=${
               selectedDate?.date
             }&month=${MONTHS_OPTIONS[selectedMonth.value].label}&day=${
               selectedDate?.day

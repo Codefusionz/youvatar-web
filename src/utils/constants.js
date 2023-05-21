@@ -1,5 +1,5 @@
-export const S3_PREFIX =
-  'https://youvatar-user-files.s3.ap-south-1.amazonaws.com/'
+export const ASSET_PREFIX =
+  'https://mlrnrdfwmjsgmywuvddk.supabase.co/storage/v1/object/public/youvatar/'
 
 export const INTRESTS = [
   'Web Development',

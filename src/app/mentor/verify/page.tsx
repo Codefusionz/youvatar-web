@@ -1,30 +1,34 @@
 'use client'
 
+import { useSupabase } from '@/app/providers/supabase-provider'
 import { BookOpenIcon } from '@heroicons/react/24/outline'
-import axios from 'axios'
-import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useSelector } from 'react-redux'
 
 export default function Page() {
   const router = useRouter()
-  const { data: session } = useSession()
   const searchParams = useSearchParams()
+  const { supabase } = useSupabase()
+  const user = useSelector((state: any) => state?.user?.data)
 
   const timeslot = searchParams.get('timeslot')
   const day = searchParams.get('day')
   const date = searchParams.get('date')
   const month = searchParams.get('month')
 
-  const updateVerification = async (e: React.MouseEventHandler) => {
-    try {
-      await axios.patch(`/api/users/${session.sub}`, {
-        isMentor: true,
-      })
-      router.replace('/mentor/dashboard')
-    } catch (error) {
-      console.log(error)
-    }
+  const updateVerification = async () => {
+    const { error: mentorError } = await supabase
+      .from('mentor')
+      .update({ isVerified: true })
+      .eq('id', user?.id)
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ isMentor: true })
+      .eq('id', user?.id)
+
+    if (!mentorError && !profileError) router.replace('/mentor/dashboard')
   }
 
   return (

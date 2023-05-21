@@ -20,9 +20,11 @@
     "clsx": "^1.2.1",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.1",
+    "moment": "^2.29.4",
     "next": "13.4.1",
     "postcss": "8.4.23",
     "react": "18.2.0",
+    "react-datepicker": "^4.11.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.9",
     "react-hot-toast": "^2.4.1",
@@ -32,6 +34,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/react-datepicker": "^4.11.2",
     "encoding": "^0.1.13"
   }
 }

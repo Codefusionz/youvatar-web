@@ -140,7 +140,7 @@ export default function Page() {
 
     if (!error) {
       dispatch(setUser(data[0]))
-      router.push('/dashboard/feed')
+      router.push('/dashboard')
       return
     }
 
@@ -152,7 +152,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (user) router.push('/dashboard/feed')
+    if (user) router.push('/dashboard')
   }, [user])
 
   return (

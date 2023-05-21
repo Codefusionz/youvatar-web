@@ -16,7 +16,7 @@ export default async function Page() {
       {data.session ? (
         <Link
           className="text-lg px-3 mt-4 rounded-md py-1 font-semibold text-white bg-primary"
-          href="/dashboard/feed"
+          href="/dashboard"
         >
           Go to Dashboard
         </Link>

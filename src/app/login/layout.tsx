@@ -14,7 +14,7 @@ export default async function RootLayout({
 
   const { data } = await auth.getSession()
 
-  if (data.session) redirect('/dashboard/feed')
+  if (data.session) redirect('/dashboard')
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 h-screen">

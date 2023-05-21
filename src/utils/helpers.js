@@ -1,16 +1,5 @@
-// import axios from 'axios'
-
-// export const getSingedUrl = async (key) => {
-//   try {
-//     const response = await axios.get(`/api/files/upload?key=${key}`)
-//     return response.data?.uploadUrl
-//   } catch (error) {
-//     console.log(error)
-//   }
-// }
-
 export const createProfileImage = (name) => {
-  const firstLetter = name.charAt(0).toUpperCase()
+  const firstLetter = name?.charAt(0)?.toUpperCase()
   const canvas = document.createElement('canvas')
   canvas.width = 200
   canvas.height = 200

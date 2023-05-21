@@ -1,10 +1,16 @@
+import { Control, Controller } from 'react-hook-form'
+import { default as ReactSelect } from 'react-select'
+
 interface TextInputProps {
   label: string
   options: Array<{ label: string; value: string | number }>
   disabled?: boolean | false
-  required?: boolean | false
-  rest: any
+  required?: boolean | true
+  placeholder: string
   error?: string
+  control: Control<any>
+  name: string
+  multiple?: boolean
 }
 
 export default function Select(props: TextInputProps) {
@@ -13,22 +19,38 @@ export default function Select(props: TextInputProps) {
       <label className="block mb-2 text-sm font-medium text-primary">
         {props.label}
       </label>
-      <select
-        defaultValue=""
-        {...props.rest}
-        className="bg-gray-50 outline-none border focus:border-primary border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-        required={props.required}
-        disabled={props.disabled}
-      >
-        <option value="" disabled>
-          Select an option
-        </option>
-        {props.options.map((option, index) => (
-          <option key={index} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <Controller
+        name={props.name}
+        control={props.control}
+        rules={{
+          required: { value: true, message: `${props.label} is required` },
+        }}
+        render={({ field }) => (
+          <ReactSelect
+            options={props.options}
+            required={props.required}
+            placeholder={props.placeholder}
+            isMulti={props.multiple}
+            {...field}
+            styles={{
+              control: (provided, state) => ({
+                ...provided,
+                border: state.isFocused
+                  ? '1px solid #3949AB'
+                  : '1px solid #D2D6DC',
+                color: state.isFocused ? '#3949AB' : '#D2D6DC',
+                padding: '0.1rem',
+                boxShadow: state.isFocused ? '0 0 0 1px #3949AB' : 'none',
+                '&:hover': {
+                  border: state.isFocused
+                    ? '1px solid #3949AB'
+                    : '1px solid #D2D6DC',
+                },
+              }),
+            }}
+          />
+        )}
+      />
       {props.error && (
         <label className="text-xs text-red-500">{props.error}</label>
       )}

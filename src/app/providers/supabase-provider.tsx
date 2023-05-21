@@ -32,9 +32,7 @@ export default function SupabaseProvider({
       .eq('id', userId)
       .single()
 
-    if (error) {
-      router.push('/onboard')
-    }
+    if (error) router.push('/onboard')
 
     setLoading(false)
     dispatch(setUser(data))
