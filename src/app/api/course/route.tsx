@@ -95,44 +95,38 @@ export async function POST(request: Request) {
     return
   }
 
-  for (let k = 0; k < batchData.length; k++) {
-    const batch = batchData[k]
-    for (let i = 0; i < parsed.modules.length; i++) {
-      const module = parsed.modules[i]
+  for (let i = 0; i < parsed.modules.length; i++) {
+    const module = parsed.modules[i]
 
-      const { data: moduleData, error: moduleError } = await supabase
-        .from('modules')
+    const { data: moduleData, error: moduleError } = await supabase
+      .from('modules')
+      .insert({ title: module.title })
+      .select()
+
+    if (moduleError) {
+      console.error('Error inserting module:', moduleError)
+      return
+    }
+
+    for (let j = 0; j < module.lectures.length; j++) {
+      const lecture = module.lectures[j]
+
+      const { error: lectureError } = await supabase
+        .from('lectures')
         .insert({
-          title: module.title,
-          batchId: batch.id,
+          title: lecture.title,
+          moduleId: moduleData[0].id,
+          date: lecture.date,
         })
         .select()
 
-      if (moduleError) {
-        console.error('Error inserting module:', moduleError)
+      if (lectureError) {
+        console.error('Error inserting lecture:', lectureError)
         return
-      }
-
-      for (let j = 0; j < module.lectures.length; j++) {
-        const lecture = module.lectures[j]
-        console.log(lecture)
-
-        const { error: lectureError } = await supabase
-          .from('lectures')
-          .insert({
-            title: lecture.title,
-            moduleId: moduleData[0].id,
-            date: lecture.date,
-          })
-          .select()
-
-        if (lectureError) {
-          console.error('Error inserting lecture:', lectureError)
-          return
-        }
       }
     }
   }
+
   return new Response(
     JSON.stringify({
       message: 'Course created successfully',
