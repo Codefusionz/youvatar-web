@@ -28,7 +28,7 @@ export default function Page() {
       email: event.email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: 'http://localhost:3000/dashboard',
+        emailRedirectTo: window.location.origin + '/dashboard',
       },
     })
     if (error) {

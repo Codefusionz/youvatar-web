@@ -1,12 +1,10 @@
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
-import { cookies, headers } from 'next/headers'
+'use client'
+
 import Link from 'next/link'
+import { useSupabase } from './providers/supabase-provider'
 
 export default async function Page() {
-  const supabase = createServerComponentSupabaseClient({
-    headers,
-    cookies,
-  })
+  const { supabase } = useSupabase()
 
   const { data } = await supabase.auth.getSession()
 

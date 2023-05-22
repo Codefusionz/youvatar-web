@@ -12,7 +12,7 @@ import CourseObjective from '@/components/course/CourseObjective'
 import CoursePricing from '@/components/course/CoursePricing'
 import CourseRequirements from '@/components/course/CourseRequirement'
 import supabase from '@/lib/supabase-browser'
-import { Course } from '@/lib/types/course'
+import { Batch, Course } from '@/lib/types/course'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -90,8 +90,6 @@ export default function Page() {
   }
 
   const onSubmit: SubmitHandler<Course> = async (event) => {
-    console.log('event', event)
-
     try {
       if (currentStep < steps.length - 1) {
         setCurrentStep(currentStep + 1)
@@ -99,23 +97,25 @@ export default function Page() {
         return
       }
 
-      setLoading(true)
+      // setLoading(true)
 
-      const thumbnailUrl = await supabase.storage
-        .from('youvatar')
-        .upload(
-          `course/${mentor.id}/thumbnail-${Date.now()}.jpg`,
-          event.thumbnail,
-          { upsert: true }
-        )
+      // const thumbnailUrl = await supabase.storage
+      //   .from('youvatar')
+      //   .upload(
+      //     `course/${mentor.id}/thumbnail-${Date.now()}.jpg`,
+      //     event.thumbnail,
+      //     { upsert: true }
+      //   )
 
-      const introFileUrl = await supabase.storage
-        .from('youvatar')
-        .upload(
-          `course/${mentor.id}/introFile-${Date.now()}.jpg`,
-          event.introFile,
-          { upsert: true }
-        )
+      // const introFileUrl = await supabase.storage
+      //   .from('youvatar')
+      //   .upload(
+      //     `course/${mentor.id}/introFile-${Date.now()}.jpg`,
+      //     event.introFile,
+      //     { upsert: true }
+      //   )
+
+      const updated = calculateLectureDays(event, event.classStartDate)
 
       const pretty = {
         ...event,
@@ -136,20 +136,97 @@ export default function Page() {
           })
           return e
         }),
-        introFile: introFileUrl,
-        thumbnail: thumbnailUrl,
+        introFile: 'introFileUrl',
+        thumbnail: 'thumbnailUrl',
       }
 
-      const response = await fetch('/api/course', {
-        method: 'POST',
-        body: JSON.stringify(pretty),
-      }).then((res) => res.json())
+      const clone = JSON.parse(JSON.stringify(pretty))
+      delete clone.batches
+      delete clone.modules
+
+      console.log('clone', clone)
+      console.log('pretty', pretty)
+
+      const { data: courseData, error: courseError } = await supabase
+        .from('course')
+        .insert([clone])
+        .select()
+
+      if (courseError) {
+        console.error('Error inserting course:', courseError)
+        return
+      }
+
+      const { data: batchData, error: batchError } = await supabase
+        .from('batches')
+        .insert(
+          pretty.batches.map((batch) => ({
+            timeSlot: batch.timeSlot,
+            numberOfStudents: batch.numberOfStudents,
+            courseId: courseData[0].id,
+          }))
+        )
+        .select()
+
+      if (batchError) {
+        console.error('Error inserting batches:', batchError)
+        return
+      }
+
+      for (let i = 0; i < pretty.modules.length; i++) {
+        const module = pretty.modules[i]
+
+        const { data: moduleData, error: moduleError } = await supabase
+          .from('modules')
+          .insert({ title: module.title })
+          .select()
+
+        if (moduleError) {
+          console.error('Error inserting module:', moduleError)
+          return
+        }
+
+        for (let j = 0; j < module.lectures.length; j++) {
+          const lecture = module.lectures[j]
+
+          const { error: lectureError, data: lectureData } = await supabase
+            .from('lectures')
+            .insert({
+              title: lecture.title,
+              moduleId: moduleData[0].id,
+              date: lecture.date,
+            })
+            .select()
+
+          if (lectureError) {
+            console.error('Error inserting lecture:', lectureError)
+            return
+          }
+        }
+      }
+
+      // for (let i = 0; i < pretty.batches.length; i++) {
+      //   const batch = pretty.modules[i]
+      //   for (let j = 0; j < pretty.modules.length; j++) {
+      //     const module = pretty.modules[j]
+      //     for (let k = 0; k < module.lectures.length; k++) {
+      //       const lecture = module.lectures[k]
+      //       await supabase.from('classes').insert({
+      //         batch_id: batchData[0].id,
+      //         course_id: courseData[0].id,
+      //         lecture_id: lectureData[0].id,
+      //         timestamp: lecture.date,
+      //         module_id: module.id,
+      //       })
+      //     }
+      //   }
+      // }
 
       // if (draftId) await axios.delete(`/api/course/draft?id=${draftId}`)
 
       setLoading(false)
 
-      router.push(`/mentor/dashboard/courses/${response.data}`)
+      // router.push(`/mentor/dashboard/courses/${response.data}`)
     } catch (error) {
       console.log(error)
       setLoading(false)

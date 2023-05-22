@@ -1,13 +1,14 @@
 'use client'
 
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 import Spinner from '@/components/Spinner'
 import { setUser } from '@/redux/slice/user'
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { useDispatch } from 'react-redux'
+import { LOGIN_ROUTE } from '@/utils/routes'
 
 type SupabaseContext = {
   supabase: SupabaseClient
@@ -23,6 +24,7 @@ export default function SupabaseProvider({
   const [supabase] = useState(() => createBrowserSupabaseClient())
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
   const dispatch = useDispatch()
 
   const getUser = async (userId: string) => {
@@ -42,9 +44,10 @@ export default function SupabaseProvider({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) getUser(session?.user.id)
-      else setLoading(false)
-      router.refresh()
+      if (!session && pathname !== LOGIN_ROUTE) router.push('/login')
+      else if (session?.user) getUser(session?.user.id)
+
+      setLoading(false)
     })
 
     return () => {
