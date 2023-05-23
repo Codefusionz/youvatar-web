@@ -172,6 +172,7 @@ export default function Page() {
         console.error('Error inserting batches:', batchError)
         return
       }
+      console.log('batchData', batchData)
 
       for (let i = 0; i < pretty.modules.length; i++) {
         const module = pretty.modules[i]
@@ -202,31 +203,24 @@ export default function Page() {
             console.error('Error inserting lecture:', lectureError)
             return
           }
+
+          for (let i = 0; i < batchData.length; i++) {
+            await supabase.from('classes').insert({
+              batch_id: batchData[0].id,
+              course_id: courseData[0].id,
+              lecture_id: lectureData[0].id,
+              timestamp: lecture.date,
+              module_id: moduleData[0].id,
+            })
+          }
         }
       }
-
-      // for (let i = 0; i < pretty.batches.length; i++) {
-      //   const batch = pretty.modules[i]
-      //   for (let j = 0; j < pretty.modules.length; j++) {
-      //     const module = pretty.modules[j]
-      //     for (let k = 0; k < module.lectures.length; k++) {
-      //       const lecture = module.lectures[k]
-      //       await supabase.from('classes').insert({
-      //         batch_id: batchData[0].id,
-      //         course_id: courseData[0].id,
-      //         lecture_id: lectureData[0].id,
-      //         timestamp: lecture.date,
-      //         module_id: module.id,
-      //       })
-      //     }
-      //   }
-      // }
 
       // if (draftId) await axios.delete(`/api/course/draft?id=${draftId}`)
 
       setLoading(false)
 
-      // router.push(`/mentor/dashboard/courses/${response.data}`)
+      router.push(`/mentor/dashboard/courses/${courseData[0].id}`)
     } catch (error) {
       console.log(error)
       setLoading(false)
