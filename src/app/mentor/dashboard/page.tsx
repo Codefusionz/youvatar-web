@@ -3,12 +3,15 @@
 import CourseCard from '@/components/CourseCard'
 import Spinner from '@/components/Spinner'
 import useClickOutside from '@/hooks/useClickOutside'
+import supabase from '@/lib/supabase-browser'
+import { mentor } from '@/signals/auth'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   EllipsisVerticalIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
+import moment from 'moment'
 import { useEffect, useRef, useState } from 'react'
 import ReactDatePicker from 'react-datepicker'
 
@@ -121,8 +124,28 @@ export default function Page() {
   })
 
   const fetchData = async () => {
-    // const data = await fetchUpcomingLiveClasses()
-    // setUpcomingLiveClasses(data)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    const { data: lectureData, error: lectureError } = await supabase
+      .from('classes')
+      .select(
+        `*,
+        course (title),
+        lectures (title),
+        batches (numberOfStudents, timeSlot)
+      `
+      )
+      .eq('mentor_id', mentor.value?.id)
+      .filter('timestamp', 'gte', today.toISOString())
+      .filter('timestamp', 'lt', tomorrow.toISOString())
+
+    console.log(lectureData)
+
+    if (!lectureError) setUpcomingLiveClasses(lectureData)
   }
 
   const changeDateToNextDay = (date: Date) => {
@@ -138,14 +161,42 @@ export default function Page() {
   }
 
   const fetchReminders = async (date: Date) => {
-    // setRemindersLoading(true)
+    setRemindersLoading(true)
     // try {
     //   const response = await axios.get(`/api/mentor/reminders?date=${date}`)
     //   setReminders(response.data.data)
     // } catch (error) {
     //   console.log(error)
     // }
-    // setRemindersLoading(false)
+
+    const targetDate = new Date(date)
+    targetDate.setHours(0, 0, 0, 0)
+
+    const nextDate = new Date(date)
+    nextDate.setDate(nextDate.getDate() + 1)
+
+    const { data: lectureData, error: lectureError } = await supabase
+      .from('classes')
+      .select(
+        `*,
+        course (title),
+        lectures (title),
+        batches (numberOfStudents, timeSlot)
+      `
+      )
+      .eq('mentor_id', mentor.value?.id)
+      .filter('timestamp', 'gte', targetDate.toISOString())
+      .filter('timestamp', 'lt', nextDate.toISOString())
+
+    const pretty = lectureData?.map((e) => ({
+      ...e,
+      timestamp: moment(e.timestamp).format('LL'),
+      description: 'There is a class in ' + moment(e.timestamp).fromNow(),
+    }))
+
+    setReminders(pretty)
+
+    setRemindersLoading(false)
   }
 
   useEffect(() => {
@@ -154,7 +205,7 @@ export default function Page() {
 
   useEffect(() => {
     fetchReminders(reminderDate)
-  }, [reminderDate])
+  }, [reminderDate, mentor])
 
   return (
     <div className="w-full h-screen">
@@ -225,13 +276,13 @@ export default function Page() {
             </div>
           ) : (
             <div className="flex flex-col gap-4 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 scrollbar-track-rounded-2xl">
-              {reminders.map((item: ReminderCardProps) => (
+              {reminders.map((item: any) => (
                 <ReminderCard
                   key={item.id}
                   type={item.type}
-                  title={item.title}
-                  time={item.time}
-                  students={item.students}
+                  title={item.lectures.title}
+                  time={item.timestamp}
+                  students={item.numberOfStudents}
                   description={item.description}
                 />
               ))}

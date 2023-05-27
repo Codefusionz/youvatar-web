@@ -6,6 +6,7 @@ import Dropzone from '@/components/Dropzone'
 import Progressbar from '@/components/Progressbar'
 import Select from '@/components/Select'
 import TextInput from '@/components/TextInput'
+import { user } from '@/signals/auth'
 import {
   HAVE_MATERIAL_TO_TEACH_OPTIONS,
   IDENTIFY_YOURSELF_OPTIONS,
@@ -17,7 +18,6 @@ import {
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 
 type SelectType = {
   label: string
@@ -48,7 +48,6 @@ function Mentor() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const totalSteps = 4
-  const user = useSelector((state: any) => state?.user?.data)
   const { supabase } = useSupabase()
 
   const {
@@ -69,13 +68,15 @@ function Mentor() {
 
       const panCardUrl = await supabase.storage
         .from('youvatar')
-        .upload(`mentor/pancard-${user.id}.jpg`, event.pancard, {
+        .upload(`mentor/pancard-${user.value?.id}.jpg`, event.pancard, {
           upsert: true,
         })
 
       const videoUrl = await supabase.storage
         .from('youvatar')
-        .upload(`mentor/video-${user.id}.mp4`, event.video, { upsert: true })
+        .upload(`mentor/video-${user.value?.id}.mp4`, event.video, {
+          upsert: true,
+        })
 
       const { error } = await supabase.from('mentor').insert({
         ...event,
@@ -100,7 +101,7 @@ function Mentor() {
     const { data: mentor } = await supabase
       .from('mentor')
       .select()
-      .eq('id', user?.id)
+      .eq('id', user.value?.id)
       .single()
 
     if (mentor) {

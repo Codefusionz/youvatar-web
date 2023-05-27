@@ -1,16 +1,15 @@
 'use client'
 
 import { useSupabase } from '@/app/providers/supabase-provider'
+import { user } from '@/signals/auth'
 import { BookOpenIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useSelector } from 'react-redux'
 
 export default function Page() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { supabase } = useSupabase()
-  const user = useSelector((state: any) => state?.user?.data)
 
   const timeslot = searchParams.get('timeslot')
   const day = searchParams.get('day')
@@ -21,12 +20,12 @@ export default function Page() {
     const { error: mentorError } = await supabase
       .from('mentor')
       .update({ isVerified: true })
-      .eq('id', user?.id)
+      .eq('id', user.value?.id)
 
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ isMentor: true })
-      .eq('id', user?.id)
+      .eq('id', user.value?.id)
 
     if (!mentorError && !profileError) router.replace('/mentor/dashboard')
   }

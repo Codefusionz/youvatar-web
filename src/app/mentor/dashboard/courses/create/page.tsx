@@ -12,15 +12,13 @@ import CourseObjective from '@/components/course/CourseObjective'
 import CoursePricing from '@/components/course/CoursePricing'
 import CourseRequirements from '@/components/course/CourseRequirement'
 import supabase from '@/lib/supabase-browser'
-import { Batch, Course } from '@/lib/types/course'
+import { Course } from '@/lib/types/course'
+import { mentor } from '@/signals/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 
 export default function Page() {
-  const mentor = useSelector((state: any) => state.user.mentor)
-
   const {
     register,
     handleSubmit,
@@ -53,6 +51,7 @@ export default function Page() {
 
   function calculateLectureDays(course: Course, startDate: Date) {
     const weekOffDays = course.weekOff.map((weekOff) => weekOff)
+
     const classStartDate = new Date(startDate)
 
     function isWeekOff(day: string) {
@@ -97,35 +96,41 @@ export default function Page() {
         return
       }
 
-      // setLoading(true)
+      setLoading(true)
 
-      // const thumbnailUrl = await supabase.storage
-      //   .from('youvatar')
-      //   .upload(
-      //     `course/${mentor.id}/thumbnail-${Date.now()}.jpg`,
-      //     event.thumbnail,
-      //     { upsert: true }
-      //   )
+      const thumbnailUrl = await supabase.storage
+        .from('youvatar')
+        .upload(
+          `course/${mentor.value?.id}/thumbnail-${Date.now()}.jpg`,
+          event.thumbnail,
+          { upsert: true }
+        )
 
-      // const introFileUrl = await supabase.storage
-      //   .from('youvatar')
-      //   .upload(
-      //     `course/${mentor.id}/introFile-${Date.now()}.jpg`,
-      //     event.introFile,
-      //     { upsert: true }
-      //   )
+      const introFileUrl = await supabase.storage
+        .from('youvatar')
+        .upload(
+          `course/${mentor.value?.id}/introFile-${Date.now()}.jpg`,
+          event.introFile,
+          { upsert: true }
+        )
 
-      const updated = calculateLectureDays(event, event.classStartDate)
+      calculateLectureDays(event, event.classStartDate)
 
       const pretty = {
         ...event,
+        // @ts-ignore
         language: event.language.value,
+        // @ts-ignore
         level: event.level.value,
+        // @ts-ignore
         category: event.category.value,
+        // @ts-ignore
         duration: event.duration.value,
+        // @ts-ignore
         weekOff: event.weekOff.map((e) => e.value),
         batches: event.batches.map((e) => ({
           ...e,
+          // @ts-ignore
           timeSlot: e.timeSlot.value,
         })),
         modules: event.modules.map((e) => {
@@ -136,8 +141,8 @@ export default function Page() {
           })
           return e
         }),
-        introFile: 'introFileUrl',
-        thumbnail: 'thumbnailUrl',
+        introFile: introFileUrl,
+        thumbnail: thumbnailUrl,
       }
 
       const clone = JSON.parse(JSON.stringify(pretty))
@@ -206,7 +211,7 @@ export default function Page() {
 
           for (let i = 0; i < batchData.length; i++) {
             await supabase.from('classes').insert({
-              batch_id: batchData[0].id,
+              batch_id: batchData[i].id,
               course_id: courseData[0].id,
               lecture_id: lectureData[0].id,
               timestamp: lecture.date,
@@ -373,6 +378,7 @@ export default function Page() {
                 register={register}
                 errors={errors}
                 control={control}
+                // @ts-ignore
                 duration={duration?.value}
               />
             )}

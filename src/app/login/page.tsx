@@ -4,7 +4,9 @@ import { useSupabase } from '@/app/providers/supabase-provider'
 import PrimaryButton from '@/components/Button/Primary'
 import SocialButton from '@/components/Button/Social'
 import TextInput from '@/components/TextInput'
-import { useState } from 'react'
+import { user } from '@/signals/auth'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import toast, { CheckmarkIcon, ErrorIcon } from 'react-hot-toast'
 
@@ -15,6 +17,7 @@ type Inputs = {
 export default function Page() {
   const [loading, setLoading] = useState(false)
   const { supabase } = useSupabase()
+  const router = useRouter()
 
   const {
     register,
@@ -45,7 +48,7 @@ export default function Page() {
   }
 
   return (
-    <div>
+    <div className="col-span-1 w-full p-4 md:max-w-md md:mx-auto">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col items-center justify-center mt-24 "

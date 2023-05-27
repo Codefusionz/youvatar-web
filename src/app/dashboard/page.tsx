@@ -1,6 +1,7 @@
 'use client'
 
 import { useSupabase } from '@/app/providers/supabase-provider'
+import { user } from '@/signals/auth'
 import { useState } from 'react'
 
 export default function Page() {

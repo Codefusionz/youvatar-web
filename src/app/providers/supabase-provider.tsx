@@ -1,14 +1,13 @@
 'use client'
 
-import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter, usePathname } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 import Spinner from '@/components/Spinner'
-import { setUser } from '@/redux/slice/user'
 import type { SupabaseClient } from '@supabase/auth-helpers-nextjs'
-import { useDispatch } from 'react-redux'
 import { LOGIN_ROUTE } from '@/utils/routes'
+import { user } from '@/signals/auth'
+import supabase from '@/lib/supabase-browser'
 
 type SupabaseContext = {
   supabase: SupabaseClient
@@ -21,32 +20,33 @@ export default function SupabaseProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [supabase] = useState(() => createBrowserSupabaseClient())
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
-  const dispatch = useDispatch()
-
-  const getUser = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select()
-      .eq('id', userId)
-      .single()
-
-    if (error) router.push('/onboard')
-
-    setLoading(false)
-    dispatch(setUser(data))
-  }
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session && pathname !== LOGIN_ROUTE) router.push('/login')
-      else if (session?.user) getUser(session?.user.id)
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN') router.replace('/dashboard')
+      else if (event === 'SIGNED_OUT') router.replace('/login')
 
+      if (session) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', session.user.id)
+          .single()
+        user.value = data
+      }
+
+      if (pathname === LOGIN_ROUTE && session) {
+        router.replace('/dashboard')
+      }
+
+      if (event === 'INITIAL_SESSION' && !session) {
+        router.replace(LOGIN_ROUTE)
+      }
       setLoading(false)
     })
 

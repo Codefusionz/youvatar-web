@@ -3,14 +3,16 @@
 import CourseCard from '@/components/CourseCard'
 import NotificationCard from '@/components/NotificationCard'
 import Spinner from '@/components/Spinner'
+import supabase from '@/lib/supabase-browser'
 import { Course } from '@/lib/types/course'
+import { mentor } from '@/signals/auth'
 import { ChevronRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const BatchCard = (props: {
-  course: Course
+  course: any
   onClick: React.MouseEventHandler
 }) => {
   return (
@@ -106,14 +108,42 @@ export default function Page() {
   }
 
   const fetchData = async () => {
-    // setLoading(true)
-    // const classesResponse = await fetchUpcomingLiveClasses()
-    // setUpcomingLiveCourses(classesResponse)
-    // const draftsResponse = await fetchDraftCourses()
-    // setDraftCourses(draftsResponse)
-    // const coursesResponse = await fetchCourses()
-    // setCourses(coursesResponse)
-    // setLoading(false)
+    setLoading(true)
+
+    const { data: courseData, error: courseError } = await supabase
+      .from('course')
+      .select(
+        `
+        *,
+        batches ( * )
+        `
+      )
+      .eq('mentorId', mentor.value?.id)
+
+    if (!courseError) setCourses(courseData)
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    const { data: lectureData, error: lectureError } = await supabase
+      .from('classes')
+      .select(
+        `*,
+        course (title),
+        lectures (title),
+        batches (numberOfStudents, timeSlot)
+      `
+      )
+      .eq('mentor_id', mentor.value?.id)
+      .filter('timestamp', 'gte', today.toISOString())
+      .filter('timestamp', 'lt', tomorrow.toISOString())
+
+    if (!lectureError) setUpcomingLiveCourses(lectureData)
+
+    setLoading(false)
   }
 
   useEffect(() => {

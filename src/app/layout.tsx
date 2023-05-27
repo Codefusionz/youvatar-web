@@ -1,4 +1,3 @@
-import ReduxProvider from '@/app/providers/redux-provider'
 import SupabaseProvider from '@/app/providers/supabase-provider'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Toaster } from 'react-hot-toast'
@@ -19,9 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Toaster />
-        <ReduxProvider>
-          <SupabaseProvider>{children}</SupabaseProvider>
-        </ReduxProvider>
+        <SupabaseProvider>{children}</SupabaseProvider>
       </body>
     </html>
   )

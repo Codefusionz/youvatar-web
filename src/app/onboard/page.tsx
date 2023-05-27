@@ -5,13 +5,11 @@ import PrimaryButton from '@/components/Button/Primary'
 import SecondaryButton from '@/components/Button/Secondary'
 import Spinner from '@/components/Spinner'
 import TextInput from '@/components/TextInput'
-import { setUser } from '@/redux/slice/user'
 import { INTRESTS, SKILLS, SPORTS } from '@/utils/constants'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import toast, { ErrorIcon } from 'react-hot-toast'
-import { useDispatch, useSelector } from 'react-redux'
 import Select from 'react-select'
 
 type Inputs = {
@@ -37,8 +35,6 @@ export default function Page() {
   const [selectedYear, setSelectedYear] = useState<OptionType | null>(null)
   const router = useRouter()
   const totalSteps = 3
-  const dispatch = useDispatch()
-  const user = useSelector((state: any) => state.user?.data)
 
   const handleDayChange = (selectedOption: any) => {
     setSelectedDay(selectedOption as OptionType)
@@ -139,7 +135,6 @@ export default function Page() {
       .select()
 
     if (!error) {
-      dispatch(setUser(data[0]))
       router.push('/dashboard')
       return
     }
@@ -150,10 +145,6 @@ export default function Page() {
 
     setLoading(false)
   }
-
-  useEffect(() => {
-    if (user) router.push('/dashboard')
-  }, [user])
 
   return (
     <div>

@@ -1,3 +1,5 @@
+import { HomeIcon } from '@heroicons/react/24/outline'
+
 export const ASSET_PREFIX =
   'https://mlrnrdfwmjsgmywuvddk.supabase.co/storage/v1/object/public/youvatar/'
 
@@ -228,5 +230,45 @@ export const courseCategoryOptions = [
   {
     label: 'Testing',
     value: 'testing',
+  },
+]
+
+export const MentorDashboardTabs = [
+  {
+    id: 1,
+    title: 'Home',
+    href: '/mentor/dashboard',
+    Icon: <HomeIcon className="h-6 w-6 text-primary" />,
+  },
+  {
+    id: 2,
+    title: 'Your courses ',
+    href: '/mentor/dashboard/courses',
+    Icon: <HomeIcon className="h-6 w-6 text-primary" />,
+  },
+
+  {
+    id: 3,
+    title: 'Create course',
+    href: '/mentor/dashboard/courses/create',
+    Icon: <HomeIcon className="h-6 w-6 text-primary" />,
+  },
+  {
+    id: 4,
+    title: 'Calender',
+    href: '/mentor/dashboard/calender',
+    Icon: <HomeIcon className="h-6 w-6 text-primary" />,
+  },
+  {
+    id: 5,
+    title: 'Test & Assignment',
+    href: '/mentor/test',
+    Icon: <HomeIcon className="h-6 w-6 text-primary" />,
+  },
+  {
+    id: 6,
+    title: 'Explore',
+    href: '/',
+    Icon: <HomeIcon className="h-6 w-6 text-primary" />,
   },
 ]

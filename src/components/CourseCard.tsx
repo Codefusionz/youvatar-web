@@ -22,10 +22,7 @@ export default function CourseCard(props: CourseCardProps) {
 
   const updateStartClass = () => {
     const now = moment()
-    const lectureDateTime = moment(
-      `${props.item.date} ${props.item.time}`,
-      'YYYY-MM-DD h:mm A'
-    )
+    const lectureDateTime = moment(props.item?.timestamp, 'YYYY-MM-DD h:mm A')
 
     const durationInMinutes = props.item.duration
     const lectureEndTime = moment(lectureDateTime).add(
@@ -39,12 +36,14 @@ export default function CourseCard(props: CourseCardProps) {
   return (
     <div className="flex flex-col min-w-[260px] lg:min-w-[350px] gap-4 p-2 lg:p-6 shadow-2xl rounded-md mb-2">
       <h1 className=" lg:text-xl font-bold">
-        {props.item.courseTitle} - {props.item.title}
+        {props.item.course.title} - {props.item.lectures.title}
       </h1>
       <div className="grid grid-cols-2 gap-4">
         <div className="flex items-center gap-2">
           <ClockIcon className="h-5 w-5 text-gray-500" />
-          <span className="text-[10px] text-gray-500">{props.item.time}</span>
+          <span className="text-[10px] text-gray-500">
+            {props.item.batches.timeSlot}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <VideoCameraIcon className="h-5 w-5 text-gray-500" />
@@ -53,13 +52,13 @@ export default function CourseCard(props: CourseCardProps) {
         <div className="flex items-center gap-2">
           <CalendarDaysIcon className="h-5 w-5 text-gray-500 shrink-0" />
           <span className="text-[10px] text-gray-500 ">
-            {moment(props.item.date).format('LL')}
+            {moment(props.item.timestamp).format('LL')}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <UserIcon className="h-5 w-5 text-gray-500" />
           <span className="text-[10px] text-gray-500">
-            Batch - {props.item.batchId}
+            Batch - {props.item.batch_id}
           </span>
         </div>
       </div>
@@ -83,13 +82,13 @@ export default function CourseCard(props: CourseCardProps) {
           />
         </div>
         <span className="text-gray-500 text-sm">
-          + {props.item.students} students
+          + {props.item.batches.numberOfStudents} students
         </span>
       </div>
       <button
         onClick={() => {
           router.push(
-            `/classes/meet/${props.item.meetId}?lecture=${props.item.id}`
+            `/classes/meet/${props.item?.meetId}?lecture=${props.item.id}`
           )
         }}
         disabled={!startClass}
